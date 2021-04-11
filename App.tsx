@@ -18,6 +18,17 @@ interface AppState {
   like: boolean;
 }
 
+interface InputProps {
+  setText?: React.Dispatch<React.SetStateAction<string>>;
+  addEet: (text: string) => void;
+}
+
+interface EetProps {
+  text: string;
+  like: boolean;
+  onLike: any;
+}
+
 export default function App() {
   const [eet, setEet] = useState<AppState[]>([]);
   const addEet = (text: string) => {
@@ -58,11 +69,6 @@ export default function App() {
   );
 }
 
-interface InputProps {
-  setText?: React.Dispatch<React.SetStateAction<string>>;
-  addEet: (text: string) => void;
-}
-
 export function Input(props: InputProps) {
   const [text, setText] = useState("");
   const onPress = () => {
@@ -77,6 +83,29 @@ export function Input(props: InputProps) {
       <Text style={styles.buttonText}>イートする</Text>
     </TouchableOpacity>
   </View>
+  )
+}
+
+export function Eet(props: EetProps) {
+  const {
+    text,
+    like,
+    onLike
+  } = props;
+
+  return (
+    <View style={eetStyle.container}>
+      <Text style={eetStyle.text}>{text}</Text>
+      <View style={eetStyle.actionContainer}>
+        <TouchableOpacity onPress={onLike}>
+          {like ?
+            <Ionicons name="heart-circle-sharp" size={22} color="rgb(252, 108, 133)" />
+            :
+            <Ionicons name="ios-heart-circle-outline" size={22} color="#aaa" />
+          }
+        </TouchableOpacity>
+      </View>
+    </View>
   )
 }
 
@@ -122,37 +151,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
 });
-
-
-
-interface EetProps {
-  text: string;
-  like: boolean;
-  onLike: any;
-}
-
-export function Eet(props: EetProps) {
-  const {
-    text,
-    like,
-    onLike
-  } = props;
-
-  return (
-    <View style={eetStyle.container}>
-      <Text style={eetStyle.text}>{text}</Text>
-      <View style={eetStyle.actionContainer}>
-        <TouchableOpacity onPress={onLike}>
-          {like ?
-            <Ionicons name="heart-circle-sharp" size={22} color="rgb(252, 108, 133)" />
-            :
-            <Ionicons name="ios-heart-circle-outline" size={22} color="#aaa" />
-          }
-        </TouchableOpacity>
-      </View>
-    </View>
-  )
-}
 
 const eetStyle = StyleSheet.create({
   container: {
