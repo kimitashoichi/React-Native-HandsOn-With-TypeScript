@@ -3,49 +3,73 @@ import { StatusBar } from 'expo-status-bar';
 import {
   SafeAreaView,
   StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
   View,
   FlatList,
 } from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
+
+import { Input } from "./components/Input";
+import { Eet } from "./components/Eet"; 
 
 
 interface AppState {
   text: string;
   id: number;
   like: boolean;
+  userId: number;
+  userName: string;
+  createAt: any;
+  isDelete: boolean;
 }
 
-interface InputProps {
-  setText?: React.Dispatch<React.SetStateAction<string>>;
-  addEet: (text: string) => void;
-}
-
-interface EetProps {
+type EetData = {
   text: string;
-  like: boolean;
-  onLike: any;
+  userName: string;
 }
+
+type EditData  = {
+  text: string;
+  index: number;
+}
+
 
 export default function App() {
   const [eet, setEet] = useState<AppState[]>([]);
-  const addEet = (text: string) => {
+
+  const addEet = (data: EetData) => {
     const initialState: AppState[] = []
     const newEet: AppState[] = initialState.concat(eet);
     newEet.push({
-      text: text,
+      text: data.text,
       id: Date.now(),
       like: false,
+      userId: 1,
+      userName: data.userName,
+      createAt: new Date().toLocaleString('ja-JP'),
+      isDelete: false
     });
     setEet(newEet);
   }
+
   const onLike = (index: number) => {
     const initialState: AppState[] = [];
     const newState = initialState.concat(eet);
     newState[index].like = !newState[index].like;
     setEet(newState);
+  }
+
+  const Delete = (index: number) => {
+    const initialState: AppState[] = [];
+    const newState = initialState.concat(eet);
+    newState[index].isDelete = !newState[index].isDelete;
+    setEet(newState);
+  }
+
+  const Edit = (data: EditData) => {
+    const initialState: AppState[] = []
+    const newState = initialState.concat(eet);
+    newState[data.index].text = data.text;
+    setEet(newState);
+    console.log(eet);
   }
 
   return (
@@ -55,11 +79,18 @@ export default function App() {
         <View style={styles.content}>
           <FlatList
             data={eet}
-            renderItem={({item, index}) => 
-            <Eet
+            renderItem={({item, index}) => (
+              item.isDelete ? null :
+              <Eet
               text={item.text}
               like={item.like}
-              onLike={() => onLike(index)} />}
+              index={index}
+              userName={item.userName}
+              createAt={item.createAt}
+              onLike={() => onLike(index)}
+              onDelte={() => Delete(index)}
+              onEdit={Edit} />
+            )}
             keyExtractor={(item) => `${item.id}`}
           />
         </View>
@@ -67,46 +98,6 @@ export default function App() {
       </View>
     </SafeAreaView>
   );
-}
-
-export function Input(props: InputProps) {
-  const [text, setText] = useState("");
-  const onPress = () => {
-    props.addEet(text);
-    setText("");
-  }
-
-  return (
-    <View style={styles.inputContainer}>
-    <TextInput style={styles.input} onChangeText={(_text)=> setText(_text)} value={text} />
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Text style={styles.buttonText}>イートする</Text>
-    </TouchableOpacity>
-  </View>
-  )
-}
-
-export function Eet(props: EetProps) {
-  const {
-    text,
-    like,
-    onLike
-  } = props;
-
-  return (
-    <View style={eetStyle.container}>
-      <Text style={eetStyle.text}>{text}</Text>
-      <View style={eetStyle.actionContainer}>
-        <TouchableOpacity onPress={onLike}>
-          {like ?
-            <Ionicons name="heart-circle-sharp" size={22} color="rgb(252, 108, 133)" />
-            :
-            <Ionicons name="ios-heart-circle-outline" size={22} color="#aaa" />
-          }
-        </TouchableOpacity>
-      </View>
-    </View>
-  )
 }
 
 
@@ -152,25 +143,3 @@ const styles = StyleSheet.create({
   },
 });
 
-const eetStyle = StyleSheet.create({
-  container: {
-    borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderColor: 'rgb(29, 161, 242)',
-    marginBottom: 10,
-    borderRadius: 5,
-  },
-  text: {
-    color: 'white',
-    fontSize: 16,
-  },
-  actionContainer: {
-    borderTopWidth: 1,
-    borderTopColor: '#aaa',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    paddingTop: 5,
-    marginTop: 20,
-  },
-})
